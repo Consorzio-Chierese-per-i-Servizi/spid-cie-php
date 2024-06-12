@@ -63,6 +63,10 @@
 
             if(in_array($client_id, array_keys($clients))) {
                 if(in_array($redirect_uri, $clients[$client_id]['redirect_uri'])) {
+                    //CCS - 11/06/2024 - handle multitab login on same browse (same SAML session)
+                    setcookie('CCS_SPIDPHP_REDIRECT_URI', $redirect_uri, 0, '/');
+                    $state = array_key_exists('state', $_REQUEST) ? $_REQUEST['state'] : '';
+                    setcookie('CCS_SPIDPHP_STATE', $state, 0, '/');
 
                     if($spidsdk->isAuthenticated() 
                     && isset($_GET['idp']) 

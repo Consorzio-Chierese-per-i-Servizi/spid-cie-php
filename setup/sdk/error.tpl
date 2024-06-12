@@ -3,6 +3,26 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header("Location: /");
     die();
 }
+
+$origRedirectUri = array_key_exists('CCS_SPIDPHP_REDIRECT_URI', $_COOKIE) ? $_COOKIE['CCS_SPIDPHP_REDIRECT_URI'] : '';
+$isBdr = !empty($origRedirectUri) &&
+        (strpos($origRedirectUri, 'bachecadelriutilizzo') !== false || strpos($origRedirectUri, 'localhost:5001') !==
+                false);
+
+if(!$isBdr) {
+    $redirectUri =
+            $origRedirectUri.'?statusCode='.urlencode($_POST['statusCode']).
+            '&statusMessage='.urlencode($_POST['statusMessage']).
+            '&errorMessage='.urlencode($_POST['errorMessage']);
+    $origState = array_key_exists('CCS_SPIDPHP_STATE', $_COOKIE) ? $_COOKIE['CCS_SPIDPHP_STATE'] : '';
+    if(!empty($origState)) {
+        $redirectUri .= '&state='.urlencode($origState);
+    }
+    header("Location: ".$redirectUri);
+    die();
+}
+
+/*
 require_once("../proxy-spid-php.php");
 $sspSession = \SimpleSAML\Session::getSessionFromRequest();
 
@@ -42,6 +62,7 @@ foreach($authState as $state) {
     }
 
 }
+*/
 
 //--Rut - 02/02/2024 - se arriva fin qui, niente redirect uri nello state - sicuramente, BDR
 $error_data = array(
