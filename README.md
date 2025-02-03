@@ -4,9 +4,9 @@
 [![Join the #spid-php channel](https://img.shields.io/badge/Slack%20channel-%23spid--php-blue.svg?logo=slack)](https://developersitalia.slack.com/messages/CB6DCK274)
 [![Get invited](https://slack.developers.italia.it/badge.svg)](https://slack.developers.italia.it/)
 [![SPID on forum.italia.it](https://img.shields.io/badge/Forum-SPID-blue.svg)](https://forum.italia.it/c/spid)
-![SP SPID in produzione con spid-php](https://img.shields.io/badge/SP%20SPID%20in%20produzione%20con%20spid--php-70+-green)
+![SP SPID in produzione con spid-php](https://img.shields.io/badge/SP%20SPID%20in%20produzione%20con%20spid--php-90+-green)
 
-# spid-php
+# spid-cie-php
 Software Development Kit for easy SPID & CIE access integration with SimpleSAMLphp.\
 spid-php has been developed and is maintained by Michele D'Amico (@damikael). **It's highly recommended to use the latest release**.
 
@@ -422,8 +422,8 @@ di Response che contiene i dettagli dell'errore.
 [Michele D'Amico (damikael)](https://it.linkedin.com/in/damikael)
  
 ## Credits
-<a href="https://www.linfaservice.it" target="_blank"><img  style="border:1px solid #ccc; padding: 5px; height: 50px; margin-right: 20px;" src="https://www.linfaservice.it/common/linfaservice.png" alt="Linfa Service"></a>
-<a href="https://www.manydesigns.com" target="_blank"><img  style="border:1px solid #ccc; padding: 5px; height: 50px; margin-right: 20px;" src="https://www.manydesigns.com/img/logoMD.png" alt="ManyDesigns"></a>
+<a href="https://www.linfaservice.it" target="_blank"><img  style="border:1px solid #ccc; padding:5px; margin-right:20px; vertical-align:middle; width: 200px;" src="https://www.linfaservice.it/common/linfaservice.png" alt="Linfa Service"></a>
+<a href="https://www.manydesigns.com" target="_blank"><img  style="border:1px solid #ccc; padding:5px; margin-right:20px; vertical-align:middle; width: 200px;" src="https://manydesigns.com/wp-content/uploads/2022/12/Logo_Manydesigns.png" alt="ManyDesigns"></a>
   
 ## Contributors
 <a href = "https://github.com/italia/spid-php/contributors">

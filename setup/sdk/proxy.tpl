@@ -9,7 +9,7 @@
     use Jose\Component\Core\AlgorithmManager;
     use Jose\Component\Core\JWK;
     use Jose\Component\KeyManagement\JWKFactory;
-    use Jose\Component\Signature\Algorithm\RS256;  
+    use Jose\Component\Signature\Algorithm\RS256;
     use Jose\Component\Signature\JWSBuilder;
     use Jose\Component\Signature\Serializer\JWSSerializerManager;
     use Jose\Component\Signature\Serializer\CompactSerializer as JWSSerializer;
@@ -19,7 +19,7 @@
     use Jose\Component\Encryption\Algorithm\ContentEncryption\A256CBCHS512;
     use Jose\Component\Encryption\Compression\CompressionMethodManager;
     use Jose\Component\Encryption\Compression\Deflate;
-    use Jose\Component\Encryption\JWEBuilder; 
+    use Jose\Component\Encryption\JWEBuilder;
     use Jose\Component\Encryption\Serializer\JWESerializerManager;
     use Jose\Component\Encryption\Serializer\CompactSerializer as JWESerializer;
     use Jose\Component\Encryption\JWEDecrypter;
@@ -41,7 +41,7 @@
     $clients        = $proxy_config['clients'];
     $action         = $_GET['action'];
     $client_id      = $_GET['client_id'];
-    $redirect_uri   = $_GET['redirect_uri'];
+    $redirect_uri   = isset($_GET['redirect_uri'])? $_GET['redirect_uri'] : $clients[$client_id]['redirect_uri'][0];
     $state          = $_GET['state'];
     $idp            = $_GET['idp'];
 
@@ -49,17 +49,23 @@
 
         case "login":
 
-            $isCIE = ($idp=="CIE" || $idp=="CIE TEST");
-            $service = $isCIE? "cie" : "spid";
-        
-            $spidsdk = new SPID_PHP($production, $service);
+            if(in_array($client_id, array_keys($clients))) {
+                if(in_array($redirect_uri, $clients[$client_id]['redirect_uri'])) {
 
+                    $isCIE = ($idp=="CIE" || $idp=="CIE TEST");
+                    $service = $isCIE? "cie" : "spid";
 
-            if(!$spidsdk->isIdPAvailable($idp)) {
-                http_response_code(404);
-                if(DEBUG) echo "idp not found"; 
-                die(); 
-            }
+                    if(isset($clients[$client_id]['service'])) {
+                        $service = $clients[$client_id]['service'];
+                    }
+
+                    $spidsdk = new SPID_PHP($production, $service);
+
+                    if(!$spidsdk->isIdPAvailable($idp)) {
+                        http_response_code(404);
+                        if(DEBUG) echo "idp not found";
+                        die();
+                    }
 
             if(in_array($client_id, array_keys($clients))) {
                 if(in_array($redirect_uri, $clients[$client_id]['redirect_uri'])) {
@@ -68,8 +74,8 @@
                     $state = array_key_exists('state', $_REQUEST) ? $_REQUEST['state'] : '';
                     setcookie('CCS_SPIDPHP_STATE', $state, 0, '/');
 
-                    if($spidsdk->isAuthenticated() 
-                    && isset($_GET['idp']) 
+                    if($spidsdk->isAuthenticated()
+                    && isset($_GET['idp'])
                     && $spidsdk->isIdP($_GET['idp'])) {
 
                         // dearray values
@@ -82,7 +88,7 @@
                         $handlerClass = 'ResponseHandler'.$client_config['handler'];
 
                         if(!in_array($handlerClass, [
-                            'ResponseHandlerPlain', 
+                            'ResponseHandlerPlain',
                             'ResponseHandlerSign',
                             'ResponseHandlerSignEncrypt',
                             'ResponseHandlerEncryptSign'
@@ -102,10 +108,10 @@
                         $handler->set('providerId', $spidsdk->getIdP());
                         $handler->set('providerName', $spidsdk->getIdPKey());
                         $handler->set('responseId', $spidsdk->getResponseID());
-                        
+
                         $handler->sendResponse($redirect_uri, $data, $state);
                         die();
-                
+
                     } else {
                         $spidcie_level = $clients[$client_id]['level'];
                         $atcs_index = $clients[$client_id]['atcs_index'];
@@ -122,13 +128,13 @@
 
                 } else {
                     http_response_code(404);
-                    if(DEBUG) echo "redirect_uri not found";  
+                    if(DEBUG) echo "redirect_uri not found";
                     die();
                 }
 
             } else {
                 http_response_code(404);
-                if(DEBUG) echo "client not found";  
+                if(DEBUG) echo "client not found";
                 die();
             }
 
@@ -136,16 +142,19 @@
 
         case "logout":
             $return = $redirect_uri? $redirect_uri : $clients[$client_id]['redirect_uri'][0];
+            $return .= (strpos($return, '?') !== false)? '&state='.$state : '?state='.$state;
 
             $service = "spid";
+            if($idp=="CIE" || $idp=="CIE TEST") $service = "cie";
+
+            if(isset($clients[$client_id]['service'])) {
+                $service = $clients[$client_id]['service'];
+            }
+
             $spidsdk = new SPID_PHP($production, $service);
-            if(!$spidsdk->isAuthenticated()) {
-                $service = "cie";
-                $spidsdk = new SPID_PHP($production, $service);
-            };
 
             if($spidsdk->isAuthenticated()) {
-                /* 
+                /*
                  * Uncomment to exec local logout instead of IdP logout
                  */
                 /*
@@ -166,7 +175,7 @@
 
                     $spidsdk->logout();
                 }
-                
+
                 die();
             } else {
                 header("location: " . $return);
@@ -175,11 +184,11 @@
 
         break;
 
-        case "verify": 
+        case "verify":
             $token = $_GET['token'];
             $secret = $_GET['secret']?:'';
             if(!$token) http_response_code(400);
-            $decrypt = ($_GET['decrypt'] && strtoupper($_GET['decrypt'])=='Y')? true:false; 
+            $decrypt = ($_GET['decrypt'] && strtoupper($_GET['decrypt'])=='Y')? true:false;
 
             $algorithmManager = new AlgorithmManager([new RS256()]);
             $jwsVerifier = new JWSVerifier($algorithmManager);
@@ -193,7 +202,7 @@
                 $payload_obj = json_decode($payload);
                 if($decrypt && array_key_exists('data', $payload_obj)) {
                     $token = $payload_obj->data;
-                    
+
                     $keyEncryptionAlgorithmManager = new AlgorithmManager([ new A256KW() ]);
                     $contentEncryptionAlgorithmManager = new AlgorithmManager([ new A256CBCHS512() ]);
                     $compressionMethodManager = new CompressionMethodManager([ new Deflate() ]);
@@ -209,7 +218,7 @@
                         header('Content-Type: application/json; charset=utf-8');
                         http_response_code(422);
                     }
-                    
+
                     $payload = $jwe->getPayload();
                 }
 
@@ -228,16 +237,16 @@
 
     $returnTo = $_COOKIE['SPIDPHP_PROXYRETURNTO'];
     if($returnTo!=null && $returnTo!='') {
-        unset($_COOKIE['SPIDPHP_PROXYRETURNTO']); 
-        setcookie('SPIDPHP_PROXYRETURNTO', null, -1, '/'); 
+        unset($_COOKIE['SPIDPHP_PROXYRETURNTO']);
+        setcookie('SPIDPHP_PROXYRETURNTO', null, -1, '/');
         header('Location: '.$returnTo);
         echo "Redirect to <a href='".$returnTo."'>".$returnTo."</a>";
         die();
     }
 
     http_response_code(404);
-    if(DEBUG) echo "action not valid"; 
-    die(); 
+    if(DEBUG) echo "action not valid";
+    die();
 
 
 ?>
