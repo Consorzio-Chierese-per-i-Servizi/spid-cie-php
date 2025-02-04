@@ -6,7 +6,7 @@ use SimpleSAML\Database;
 use SimpleSAML\Session;
 
 class CcsContainer extends Container {
-    const TABLE_NAME = 'cie_auth_requests';
+    const TABLE_NAME = 'spid_auth_requests';
 
     /**
      * The PDO object
