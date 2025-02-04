@@ -65,7 +65,8 @@
     },
     "scripts": {
         "post-update-cmd": [
-            "SPID_PHP\\Setup::setup"
+            "SPID_PHP\\Setup::setup",
+            "SPID_PHP\\Ccs::setup"
         ],
         "update-metadata": [
             "SPID_PHP\\Setup::updateMetadata"

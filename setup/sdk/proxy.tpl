@@ -1,5 +1,6 @@
 <?php
     require_once("{{SDKHOME}}/proxy-spid-php.php");
+    require_once("{{SDKHOME}}/lib/CcsContainer.php");
     require_once("{{SDKHOME}}/lib/ResponseHandler.php");
     require_once("{{SDKHOME}}/lib/ResponseHandlerPlain.php");
     require_once("{{SDKHOME}}/lib/ResponseHandlerSign.php");
@@ -23,6 +24,7 @@
     use Jose\Component\Encryption\Serializer\JWESerializerManager;
     use Jose\Component\Encryption\Serializer\CompactSerializer as JWESerializer;
     use Jose\Component\Encryption\JWEDecrypter;
+    use SAML2\Compat\ContainerSingleton;
 
     const PROXY_CONFIG_FILE = "{{SDKHOME}}/spid-php-proxy.json";
     const TOKEN_PRIVATE_KEY = "{{SDKHOME}}/cert/spid-sp.pem";
@@ -34,6 +36,10 @@
     const DEFAULT_SECRET = "";
     const DEFAULT_TOKEN_EXPIRATION_TIME = 1200;
     const DEBUG = false;
+
+    // Logs custom - gestisce inserimento logs su database
+    $container = new CcsContainer();
+    ContainerSingleton::setContainer($container);
 
     $proxy_config = file_exists(PROXY_CONFIG_FILE)? json_decode(file_get_contents(PROXY_CONFIG_FILE), true) : array();
     $production = $proxy_config['production'];
