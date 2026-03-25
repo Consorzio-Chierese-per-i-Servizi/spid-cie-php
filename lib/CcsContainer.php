@@ -243,7 +243,7 @@ class CcsContainer extends Container {
             $relayStateStr = openssl_decrypt(substr($decodedData, $ivSize), "aes-256-cbc", $secretSalt, 0, $iv);
 
             //https://ciedev.ccs.to.it/proxy.php?client_id=6491a3356ea6f&action=login&redirect_uri=https://www.ccs.to.it/serviziwebdev/auth/cie-landing&idp=CIE%20TEST&state=sportello_online
-            $relayStateQuery = parse_url(relayStateStr, PHP_URL_QUERY);
+            $relayStateQuery = parse_url($relayStateStr, PHP_URL_QUERY);
             if($relayStateQuery !== false) {
                 parse_str($relayStateQuery, $queryParts);
                 if(is_array($queryParts) && array_key_exists('idp', $queryParts) && !empty($queryParts['idp'])) {
